@@ -1,0 +1,42 @@
+# Ritmo: app (API + front) e PostgreSQL.
+#
+# O app escuta APENAS em 127.0.0.1:${APP_PORT} (padrão 3000): não ocupa as portas 80/443 da sua VPS.
+# O Nginx/Caddy/Apache que você já usa aponta para essa porta (exemplos em deploy/).
+# O banco não publica porta nenhuma: só o app o enxerga, pela rede interna do compose.
+name: ritmo
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ritmo
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no arquivo .env}"
+      POSTGRES_DB: ritmo
+    volumes:
+      - ritmo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ritmo -d ritmo"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build: .
+    image: ritmo-app:latest
+    restart: unless-stopped
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: "postgres://ritmo:${POSTGRES_PASSWORD}@db:5432/ritmo"
+      PUBLIC_URL: "${PUBLIC_URL:?defina PUBLIC_URL no arquivo .env (exemplo https://ritmo.seudominio.com)}"
+      ALLOW_SIGNUP: "${ALLOW_SIGNUP:-true}"
+      TRUST_PROXY: "${TRUST_PROXY:-true}"
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+
+volumes:
+  ritmo_pgdata:
