@@ -38,7 +38,7 @@ export function HabitDetail({ habitId, onClose, onEdit }: HabitDetailProps) {
       <Modal
         open={!confirmDelete}
         onClose={onClose}
-        size="lg"
+        size="xl"
         title={habit.title}
         description={habit.description}
         footer={
@@ -63,26 +63,28 @@ export function HabitDetail({ habitId, onClose, onEdit }: HabitDetailProps) {
           </div>
         }
       >
-        <div style={colorStyle(habit.color)} className="space-y-5">
-          <div className="flex items-center gap-3">
-            <span className="tint c-glow grid size-14 shrink-0 place-items-center rounded-2xl">
-              <EntityIcon name={habit.icon} className="size-7" />
-            </span>
-            <p className="text-sm text-muted">
-              {scheduleLabel(habit.days)}
-              {habit.time && ` · ${habit.time}`}
-              {habit.archived && ' · Arquivado'}
-            </p>
+        <div style={colorStyle(habit.color)} className="space-y-5 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-5 lg:space-y-0">
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <span className="tint c-glow grid size-14 shrink-0 place-items-center rounded-2xl">
+                <EntityIcon name={habit.icon} className="size-7" />
+              </span>
+              <p className="text-sm text-muted">
+                {scheduleLabel(habit.days)}
+                {habit.time && ` · ${habit.time}`}
+                {habit.archived && ' · Arquivado'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-2">
+              <StatTile icon={Flame} label="Sequência" value={`${streak}`} hint={plural(streak, 'dia seguido', 'dias seguidos')} color="#ff8a3d" />
+              <StatTile icon={Trophy} label="Recorde" value={`${best}`} hint={plural(best, 'dia', 'dias')} color="#ffc532" />
+              <StatTile icon={Percent} label="30 dias" value={formatPercent(completionRate(habit, 30, today))} hint="de conclusão" color={color} />
+              <StatTile icon={CircleCheckBig} label="Total" value={`${habit.completions.length}`} hint={plural(habit.completions.length, 'conclusão', 'conclusões')} color="#1ee09a" />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatTile icon={Flame} label="Sequência" value={`${streak}`} hint={plural(streak, 'dia seguido', 'dias seguidos')} color="#ff8a3d" />
-            <StatTile icon={Trophy} label="Recorde" value={`${best}`} hint={plural(best, 'dia', 'dias')} color="#ffc532" />
-            <StatTile icon={Percent} label="30 dias" value={formatPercent(completionRate(habit, 30, today))} hint="de conclusão" color={color} />
-            <StatTile icon={CircleCheckBig} label="Total" value={`${habit.completions.length}`} hint={plural(habit.completions.length, 'conclusão', 'conclusões')} color="#1ee09a" />
-          </div>
-
-          <div className="glass mx-auto max-w-md rounded-2xl p-4">
+          <div className="glass mx-auto w-full max-w-md rounded-2xl p-4 lg:max-w-none">
             <HabitCalendar habit={habit} today={today} onToggle={(date, done) => setHabitDay(habit.id, date, done)} />
           </div>
         </div>

@@ -147,7 +147,7 @@ export function RoutineFormModal({ routine, onClose }: RoutineFormModalProps) {
           </div>
         </FieldGroup>
 
-        <div className="grid gap-5 sm:grid-cols-[11rem_1fr]">
+        <div className="grid gap-5 sm:grid-cols-[11rem_minmax(0,1fr)]">
           <Field label="Começa às" error={submitted ? errors.startTime : undefined}>
             <Input
               type="time"

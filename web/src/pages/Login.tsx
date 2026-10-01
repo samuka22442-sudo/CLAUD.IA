@@ -102,7 +102,7 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[1.08fr_1fr]">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)]">
       <BrandPanel />
 
       <main className="flex min-h-dvh items-center justify-center px-4 py-8 sm:px-8">
@@ -282,7 +282,7 @@ function BrandPanel() {
 
       <Logo className="relative" />
 
-      <div className="relative my-6">
+      <div className="relative my-auto py-6">
         <h1 className="max-w-xl text-5xl leading-[1.08] font-extrabold tracking-tight xl:text-[3.4rem]">
           Construa seu <span className="text-gradient">ritmo</span>, um dia de cada vez.
         </h1>
@@ -293,7 +293,8 @@ function BrandPanel() {
         <PreviewCluster />
       </div>
 
-      <ul className="relative grid grid-cols-3 gap-5">
+      {/* Só aparece quando a tela é alta o bastante; em notebooks baixos (ex.: 1280×800) o painel fica só com título e prévia. */}
+      <ul className="relative hidden grid-cols-3 gap-5 [@media(min-height:880px)]:grid">
         {FEATURES.map(({ icon: Icon, title, text }) => (
           <li key={title} className="flex flex-col gap-2.5">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-500/15 text-brand-300">
@@ -319,7 +320,7 @@ const PREVIEW_HABITS = [
 /** Miniatura do app (decorativa), montada com os mesmos componentes das telas reais. */
 function PreviewCluster() {
   return (
-    <div className="relative mt-9 h-[17.5rem] max-w-xl select-none" aria-hidden>
+    <div className="relative mt-9 h-[19.5rem] max-w-xl select-none [@media(max-height:719px)]:hidden" aria-hidden>
       <div className="glass absolute top-0 left-0 w-[21rem] -rotate-2 rounded-[2rem] p-5 shadow-2xl">
         <div className="flex items-center gap-4">
           <ProgressRing value={2 / 3} size={72} stroke={8}>

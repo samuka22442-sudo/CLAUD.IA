@@ -109,7 +109,7 @@ export function Progress() {
         <StatTile icon={CircleCheckBig} label="Conclusões" value={`${totalDone}`} hint="desde o início" color="#1ee09a" className="col-span-2 lg:col-span-1" />
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1.25fr_1fr]">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <Section title="Últimos 14 dias">
           <Card>
             <DayBars habits={habits} today={today} days={14} height={150} />
@@ -166,7 +166,7 @@ export function Progress() {
       </Section>
 
       <Section title="Seus hábitos (30 dias)" className="mt-6">
-        <Card padded={false} className="grid divide-y divide-line lg:grid-cols-2 lg:divide-y-0">
+        <Card padded={false} className="grid grid-cols-1 divide-y divide-line lg:grid-cols-2 lg:divide-y-0">
           {rows.map(({ habit, current, rate }, index) => {
             return (
               <div

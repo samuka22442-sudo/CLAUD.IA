@@ -45,7 +45,7 @@ export function HabitCard({ habit, today, onOpen, onToggle }: HabitCardProps) {
           <EntityIcon name={habit.icon} className="size-6" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className={cn('block truncate text-[0.97rem] font-bold', doneToday && 'text-muted')}>{habit.title}</span>
+          <span className={cn('line-clamp-2 text-[0.97rem] leading-snug font-bold break-words', doneToday && 'text-muted')}>{habit.title}</span>
           <span className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-subtle">
             <span>{scheduleLabel(habit.days)}</span>
             {habit.time && (

@@ -12,10 +12,10 @@ interface ModalProps {
   children: ReactNode
   /** Barra de ações fixa no rodapé (botões Salvar/Cancelar). */
   footer?: ReactNode
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
-const widths = { sm: 'md:max-w-md', md: 'md:max-w-lg', lg: 'md:max-w-2xl' }
+const widths = { sm: 'md:max-w-md', md: 'md:max-w-lg', lg: 'md:max-w-2xl', xl: 'md:max-w-2xl lg:max-w-4xl' }
 
 /**
  * Diálogo acessível baseado no <dialog> nativo (foco preso, Esc fecha, fundo inerte).

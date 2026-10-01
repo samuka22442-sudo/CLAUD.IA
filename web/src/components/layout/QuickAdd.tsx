@@ -41,6 +41,7 @@ export function QuickAdd() {
 
   return (
     <div ref={ref} className="fixed right-4 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3 lg:hidden">
+      {open && <div className="fixed inset-0 -z-10 bg-ink-950/75 backdrop-blur-[3px]" onClick={() => setOpen(false)} aria-hidden />}
       {open && (
         <ul className="flex flex-col items-end gap-2.5" aria-label="Criar novo">
           {OPTIONS.map(({ to, label, icon: Icon, color }, index) => (

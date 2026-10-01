@@ -11,7 +11,7 @@ interface ColorPickerProps {
 
 export function ColorPicker({ value, onChange }: ColorPickerProps) {
   return (
-    <div role="radiogroup" aria-label="Cor" className="grid grid-cols-5 gap-2.5 sm:grid-cols-10">
+    <div role="radiogroup" aria-label="Cor" className="grid grid-cols-5 gap-2.5">
       {COLOR_KEYS.map((key) => {
         const selected = key === value
         return (
@@ -25,7 +25,7 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
             onClick={() => onChange(key)}
             style={colorStyle(key)}
             className={cn(
-              'relative grid aspect-square min-h-11 place-items-center rounded-full bg-(--c) transition active:scale-90',
+              'relative grid aspect-square min-h-11 w-full max-w-14 place-items-center justify-self-center rounded-full bg-(--c) transition active:scale-90',
               selected ? 'ring-2 ring-white ring-offset-2 ring-offset-ink-850 c-glow' : 'opacity-85 hover:opacity-100',
             )}
           >

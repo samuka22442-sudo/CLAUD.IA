@@ -80,28 +80,31 @@ export function Dashboard() {
       {empty ? (
         <GettingStarted />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
           <div className="space-y-6">
             {/* Resumo do dia */}
             <Card className="relative overflow-hidden">
               <div className="pointer-events-none absolute -top-24 -right-16 size-64 rounded-full bg-brand-500/25 blur-[90px]" aria-hidden />
-              <div className="relative flex flex-col items-center gap-6 sm:flex-row sm:items-center">
-                <ProgressRing value={ratio} size={150} stroke={14} label={`${progress.done} de ${progress.scheduled} hábitos concluídos hoje`}>
-                  <div className="text-center">
-                    <p className="text-4xl font-extrabold tabular-nums">{formatPercent(ratio)}</p>
-                    <p className="text-xs font-medium text-muted">do dia</p>
+              <div className="relative flex flex-col gap-6">
+                <div className="flex flex-col items-center gap-6 sm:flex-row">
+                  <ProgressRing value={ratio} size={150} stroke={14} label={`${progress.done} de ${progress.scheduled} hábitos concluídos hoje`}>
+                    <div className="text-center">
+                      <p className="text-4xl font-extrabold tabular-nums">{formatPercent(ratio)}</p>
+                      <p className="text-xs font-medium text-muted">do dia</p>
+                    </div>
+                  </ProgressRing>
+                  <div className="w-full min-w-0 flex-1 text-center sm:text-left">
+                    <h2 className="text-xl font-extrabold sm:text-2xl">
+                      {progress.done} de {progress.scheduled} {plural(progress.scheduled, 'hábito concluído', 'hábitos concluídos')}
+                    </h2>
+                    <p className="mt-1 text-sm text-muted">{encouragement(progress.scheduled, ratio)}</p>
                   </div>
-                </ProgressRing>
-                <div className="w-full min-w-0 flex-1 text-center sm:text-left">
-                  <h2 className="text-xl font-extrabold sm:text-2xl">
-                    {progress.done} de {progress.scheduled} {plural(progress.scheduled, 'hábito concluído', 'hábitos concluídos')}
-                  </h2>
-                  <p className="mt-1 text-sm text-muted">{encouragement(progress.scheduled, ratio)}</p>
-                  <div className="mt-5 grid grid-cols-3 gap-2.5 text-left">
-                    <MiniStat icon={Flame} color="#ff8a3d" label="Sequência" value={top ? `${top.streak}` : '0'} hint={top && top.streak > 0 ? top.habit.title : 'dias'} />
-                    <MiniStat icon={TrendingUp} color="#22d3ee" label="7 dias" value={formatPercent(weekRate)} hint="concluído" />
-                    <MiniStat icon={Target} color="#ff3d9a" label="Metas" value={`${activeGoals.length}`} hint="ativas" />
-                  </div>
+                </div>
+                {/* Linha própria, na largura toda: com a coluna ao lado do anel os cartões ficavam apertados em 1280 px. */}
+                <div className="grid grid-cols-3 gap-2.5 text-left">
+                  <MiniStat icon={Flame} color="#ff8a3d" label="Sequência" value={top ? `${top.streak}` : '0'} hint={top && top.streak > 0 ? top.habit.title : 'dias'} />
+                  <MiniStat icon={TrendingUp} color="#22d3ee" label="7 dias" value={formatPercent(weekRate)} hint="concluído" />
+                  <MiniStat icon={Target} color="#ff3d9a" label="Metas" value={`${activeGoals.length}`} hint="ativas" />
                 </div>
               </div>
             </Card>

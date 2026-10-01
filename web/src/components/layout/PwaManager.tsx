@@ -1,4 +1,5 @@
 import { CircleCheck, RefreshCw } from 'lucide-react'
+import { useEffect } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { Button } from '../ui/Button.tsx'
 
@@ -18,6 +19,13 @@ export function PwaManager() {
       if (registration) setInterval(() => void registration.update(), 60 * 60 * 1000)
     },
   })
+
+  // O aviso de "pronto para usar offline" é só informativo: some sozinho. O de "nova versão" espera a escolha.
+  useEffect(() => {
+    if (!offlineReady || needRefresh) return
+    const id = setTimeout(() => setOfflineReady(false), 7000)
+    return () => clearTimeout(id)
+  }, [offlineReady, needRefresh, setOfflineReady])
 
   if (!needRefresh && !offlineReady) return null
 
