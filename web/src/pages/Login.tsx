@@ -27,6 +27,7 @@ import { Logo } from '../components/ui/Logo.tsx'
 import { ProgressBar } from '../components/ui/ProgressBar.tsx'
 import { ProgressRing } from '../components/ui/ProgressRing.tsx'
 import { useInstallPrompt } from '../hooks/useInstallPrompt.ts'
+import { DEMO_BUILD } from '../lib/env.ts'
 import { cn } from '../lib/cn.ts'
 import { colorStyle } from '../lib/colors.ts'
 import { errorMessage } from '../sync/api.ts'
@@ -64,6 +65,8 @@ export function Login() {
   const from = (location.state as { from?: string } | null)?.from ?? '/'
   if (status === 'loading') return <Splash />
   if (status === 'authenticated') return <Navigate to={from} replace />
+
+  if (DEMO_BUILD) return <DemoLanding onEnter={enterDemo} />
 
   const isRegister = allowSignup && tab === 'register'
 
@@ -107,14 +110,7 @@ export function Login() {
 
       <main className="flex min-h-dvh items-center justify-center px-4 py-8 sm:px-8">
         <div className="w-full max-w-md animate-fade-up">
-          {/* Marca compacta (celular/tablet) */}
-          <div className="mb-8 text-center lg:hidden">
-            <Logo className="justify-center" />
-            <h1 className="mt-6 text-[1.75rem] leading-tight font-extrabold tracking-tight">
-              Construa seu <span className="text-gradient">ritmo</span>.
-            </h1>
-            <p className="mt-2 text-sm text-muted">Hábitos, metas e rotinas num só lugar.</p>
-          </div>
+          <CompactBrand />
 
           <div className="glass rounded-[2rem] p-6 sm:p-8">
             {allowSignup ? (
@@ -251,6 +247,42 @@ export function Login() {
   )
 }
 
+/** Marca compacta (celular/tablet); no computador quem faz esse papel é o painel lateral. */
+function CompactBrand() {
+  return (
+    <div className="mb-8 text-center lg:hidden">
+      <Logo className="justify-center" />
+      <h1 className="mt-6 text-[1.75rem] leading-tight font-extrabold tracking-tight">
+        Construa seu <span className="text-gradient">ritmo</span>.
+      </h1>
+      <p className="mt-2 text-sm text-muted">Hábitos, metas e rotinas num só lugar.</p>
+    </div>
+  )
+}
+
+/** Versão estática (sem servidor): não há conta nem login, só a demonstração com dados de exemplo. */
+function DemoLanding({ onEnter }: { onEnter: () => void }) {
+  return (
+    <div className="min-h-dvh lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)]">
+      <BrandPanel />
+      <main className="flex min-h-dvh items-center justify-center px-4 py-8 sm:px-8">
+        <div className="w-full max-w-md animate-fade-up">
+          <CompactBrand />
+          <div className="glass rounded-[2rem] p-6 sm:p-8">
+            <h2 className="text-xl font-bold">Demonstração do Ritmo</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Dados de exemplo, guardados só neste navegador. Esta versão não tem conta, login nem servidor.
+            </p>
+            <Button size="lg" fullWidth className="mt-6" icon={<Sparkles className="size-5" />} onClick={onEnter}>
+              Explorar demonstração
+            </Button>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
+
 function Notice({ tone, children }: { tone: 'error' | 'info'; children: ReactNode }) {
   return (
     <div
@@ -287,7 +319,7 @@ function BrandPanel() {
           Construa seu <span className="text-gradient">ritmo</span>, um dia de cada vez.
         </h1>
         <p className="mt-4 max-w-lg text-lg leading-relaxed text-muted">
-          Hábitos, metas e rotinas em um só lugar. No celular ou no computador, tudo sincronizado.
+          Hábitos, metas e rotinas em um só lugar. No celular ou no computador{DEMO_BUILD ? '.' : ', tudo sincronizado.'}
         </p>
 
         <PreviewCluster />

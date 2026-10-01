@@ -18,6 +18,7 @@
     "dev:server": "npm run dev -w @ritmo/server",
     "dev:web": "npm run dev -w @ritmo/web",
     "build": "npm run build -w @ritmo/web && npm run build -w @ritmo/server",
+    "build:demo": "npm run build:demo -w @ritmo/web",
     "start": "npm run start -w @ritmo/server",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",

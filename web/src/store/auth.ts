@@ -1,5 +1,6 @@
 import type { User } from '@ritmo/shared'
 import { create } from 'zustand'
+import { DEMO_BUILD } from '../lib/env.ts'
 import { KEYS, readJSON, readString, removeKey, writeJSON, writeString } from '../lib/storage.ts'
 import { ApiError, authApi } from '../sync/api.ts'
 import { useData, wipeCache } from './data.ts'
@@ -134,6 +135,12 @@ function activate(user: User): void {
 }
 
 async function doInit(): Promise<void> {
+  // Versão estática (sem servidor): abre direto na demonstração.
+  if (DEMO_BUILD) {
+    useAuth.getState().enterDemo()
+    return
+  }
+
   // Configuração pública (cadastro aberto?) — não bloqueia a abertura.
   authApi
     .config()
