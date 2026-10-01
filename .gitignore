@@ -1,0 +1,21 @@
+# dependências e builds
+node_modules
+dist
+dist-ssr
+coverage
+*.tsbuildinfo
+
+# segredos e dados locais — nunca commitar
+.env
+.env.*
+!.env.example
+.pgdata
+backups
+
+# logs e lixo de editor
+*.log
+npm-debug.log*
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea

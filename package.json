@@ -1,0 +1,29 @@
+{
+  "name": "ritmo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ritmo — PWA de hábitos, metas e rotinas (React + Vite + Tailwind, API Fastify + PostgreSQL)",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "workspaces": [
+    "shared",
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n db,api,web -c magenta,blue,cyan \"npm:dev:db\" \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:db": "npm run dev:db -w @ritmo/server",
+    "dev:server": "npm run dev -w @ritmo/server",
+    "dev:web": "npm run dev -w @ritmo/web",
+    "build": "npm run build -w @ritmo/web && npm run build -w @ritmo/server",
+    "start": "npm run start -w @ritmo/server",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
