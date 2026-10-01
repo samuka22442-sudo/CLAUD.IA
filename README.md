@@ -240,10 +240,11 @@ deploy/   exemplos de proxy (Nginx, Caddy), deploy.sh (rsync + SSH) e backup.sh
 Dockerfile · docker-compose.yml · .env.example
 ```
 
-**Testes**: `npm test` roda ~220 testes — regras de hábitos/metas/rotinas (com fuso fixo UTC−3 para pegar bugs de data), operações e fila de
+**Testes**: `npm test` roda 232 testes (108 no servidor e 124 no front) — regras de hábitos/metas/rotinas (com fuso fixo UTC−3 para pegar bugs de data), operações e fila de
 sincronização, e a API inteira contra um **PostgreSQL de verdade** (autenticação, isolamento entre usuários, CRUD, idempotência, rate limit, CSRF, arquivos estáticos).
 
 **O que foi verificado antes de entregar**: testes, lint e tipos; navegação real em Chromium (PC e celular) com **dois aparelhos** na mesma conta, **modo offline de verdade**
-(servidor derrubado e religado), service worker, manifest e checagem de instalabilidade. O `docker-compose.yml` foi validado com `docker compose config` e o estágio final
+(servidor derrubado e religado), service worker, manifest e checagem de instalabilidade; **responsividade** em 8 larguras (320, 360, 390, 768, 1280, 1366, 1440 e 1920 px)
+em todas as telas e diálogos, com checagem automática de rolagem horizontal e revisão dos prints. O `docker-compose.yml` foi validado com `docker compose config` e o estágio final
 da imagem foi simulado numa pasta limpa, mas **a construção da imagem Docker e os exemplos de proxy não puderam ser executados no ambiente de desenvolvimento**
 (sem Docker/Nginx). Se algo falhar na primeira subida, comece por `docker compose logs app` e `docker compose logs db`.
