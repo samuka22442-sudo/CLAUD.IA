@@ -84,6 +84,16 @@ describe('store de dados (modo remoto)', () => {
     expect(useData.getState().queue).toHaveLength(1)
   })
 
+  it('applySnapshot ignora resposta malformada (nunca apaga nem corrompe o estado local)', () => {
+    useData.getState().load('u1', 'remote')
+    useData.getState().commit({ type: 'habit.put', habit: habit() })
+    const before = useData.getState().data
+    useData.getState().applySnapshot(undefined as never)
+    useData.getState().applySnapshot(null as never)
+    useData.getState().applySnapshot({ habits: [] } as never)
+    expect(useData.getState().data).toBe(before)
+  })
+
   it('applySnapshot remove o que foi apagado em outro aparelho', () => {
     useData.getState().load('u1', 'remote')
     useData.getState().commit({ type: 'habit.put', habit: habit() })

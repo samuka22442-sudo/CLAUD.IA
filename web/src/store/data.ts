@@ -4,6 +4,7 @@ import { todayISO } from '../lib/dates.ts'
 import { newId } from '../lib/ids.ts'
 import { buildDemoData } from '../lib/seed.ts'
 import { KEYS, readJSON, removeKey, writeJSON } from '../lib/storage.ts'
+import { isAppData } from '../sync/api.ts'
 import { applyOp, applyOps, EMPTY_DATA } from '../sync/ops.ts'
 import type { Op } from '../sync/ops.ts'
 import type { QueuedOp } from '../sync/engine.ts'
@@ -89,6 +90,8 @@ export const useData = create<DataState>((set, get) => ({
   },
 
   applySnapshot(snapshot) {
+    // Defesa extra: um snapshot malformado nunca pode apagar o estado local.
+    if (!isAppData(snapshot)) return
     set({ data: applyOps(snapshot, get().queue.map((item) => item.op)) })
   },
 

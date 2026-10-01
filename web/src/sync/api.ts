@@ -38,11 +38,22 @@ export async function request<T = void>(method: string, path: string, body?: unk
   }
 
   if (response.status === 204) return undefined as T
-  let payload: unknown
+
+  // Ler o corpo também pode falhar (conexão cortada no meio, troca de página): é falha de rede, nunca "sucesso vazio".
+  let text: string
   try {
-    payload = await response.json()
+    text = await response.text()
   } catch {
-    payload = undefined
+    throw new ApiError(0, 'network', 'A conexão foi interrompida')
+  }
+
+  let payload: unknown
+  if (text) {
+    try {
+      payload = JSON.parse(text)
+    } catch {
+      if (response.ok) throw new ApiError(response.status, 'unknown', 'Resposta inesperada do servidor')
+    }
   }
   if (!response.ok) {
     const info = (payload ?? {}) as { error?: ApiErrorCode; message?: string }
@@ -76,9 +87,20 @@ export function errorMessage(error: unknown): string {
   }
 }
 
+/** O servidor sempre devolve as três listas; qualquer outra coisa é resposta inválida. */
+export function isAppData(value: unknown): value is AppData {
+  if (typeof value !== 'object' || value === null) return false
+  const data = value as Partial<AppData>
+  return Array.isArray(data.habits) && Array.isArray(data.goals) && Array.isArray(data.routines)
+}
+
 export const syncApi = {
   send: (req: HttpRequest) => request(req.method, req.path, req.body),
-  fetchData: () => request<AppData>('GET', '/api/data'),
+  async fetchData(): Promise<AppData> {
+    const data = await request<unknown>('GET', '/api/data')
+    if (!isAppData(data)) throw new ApiError(200, 'unknown', 'Resposta inesperada do servidor')
+    return data
+  },
 }
 
 export const authApi = {

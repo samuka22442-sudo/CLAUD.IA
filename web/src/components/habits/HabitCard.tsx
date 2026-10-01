@@ -25,7 +25,7 @@ export function HabitCard({ habit, today, onOpen, onToggle }: HabitCardProps) {
   return (
     <article
       style={colorStyle(habit.color)}
-      className={cn('glass flex items-center gap-3 rounded-3xl p-3 pr-4 transition sm:gap-4 sm:p-4', habit.archived && 'opacity-70')}
+      className={cn('glass flex min-w-0 items-center gap-3 rounded-3xl p-3 pr-4 transition sm:gap-4 sm:p-4', habit.archived && 'opacity-70')}
     >
       {habit.archived || !scheduledToday ? (
         <span className="grid size-11 shrink-0 place-items-center" title={habit.archived ? 'Arquivado' : 'Não é dia deste hábito'} aria-hidden>

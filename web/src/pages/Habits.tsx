@@ -70,7 +70,7 @@ export function Habits() {
       />
 
       {list.length > 0 ? (
-        <div className="grid gap-3 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           {list.map((habit) => (
             <HabitCard
               key={habit.id}
