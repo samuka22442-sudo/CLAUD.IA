@@ -1,7 +1,0 @@
-# Caddy — HTTPS automático (certificado Let's Encrypt) na frente do Ritmo.
-# Acrescente este bloco ao seu Caddyfile (troque o domínio) e rode:  sudo systemctl reload caddy
-
-ritmo.seudominio.com {
-	encode zstd gzip
-	reverse_proxy 127.0.0.1:3000    # mesma porta de APP_PORT no .env
-}

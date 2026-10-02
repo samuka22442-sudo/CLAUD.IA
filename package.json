@@ -1,30 +1,26 @@
 {
-  "name": "ritmo",
-  "version": "0.1.0",
+  "name": "netdiagram",
   "private": true,
+  "version": "1.0.0",
   "type": "module",
-  "description": "Ritmo — PWA de hábitos, metas e rotinas (React + Vite + Tailwind, API Fastify + PostgreSQL)",
-  "engines": {
-    "node": ">=22.12.0"
-  },
-  "workspaces": [
-    "shared",
-    "server",
-    "web"
-  ],
   "scripts": {
-    "dev": "concurrently -n db,api,web -c magenta,blue,cyan \"npm:dev:db\" \"npm:dev:server\" \"npm:dev:web\"",
-    "dev:db": "npm run dev:db -w @ritmo/server",
-    "dev:server": "npm run dev -w @ritmo/server",
-    "dev:web": "npm run dev -w @ritmo/web",
-    "build": "npm run build -w @ritmo/web && npm run build -w @ritmo/server",
-    "build:demo": "npm run build:demo -w @ritmo/web",
-    "start": "npm run start -w @ritmo/server",
-    "test": "npm run test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "html-to-image": "^1.11.13",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "concurrently": "^10.0.5"
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2"
   }
 }

@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a1020;
+  --color-panel: #101a30;
+  --color-panel2: #16233f;
+  --color-line: #22345a;
+  --color-accent: #3b82f6;
+}
+
+html, body, #root { height: 100%; }
+body { margin: 0; background: var(--color-bg); color: #dbe7ff; font-family: system-ui, sans-serif; overflow: hidden; }
+input, select, textarea { outline: none; }
+input:focus, select:focus, textarea:focus { border-color: var(--color-accent); }
