@@ -15,6 +15,7 @@ export default function ProjectBar() {
   const p = useActive()
   const projects = useStore((s) => s.projects)
   const canUndo = useStore((s) => s.past.length > 0)
+  const saveState = useStore((s) => s.saveState)
   const st = useStore.getState()
   const file = useRef<HTMLInputElement>(null)
   const safe = p.name.replace(/[^\w\-]+/g, '_') || 'diagrama'
@@ -74,10 +75,15 @@ export default function ProjectBar() {
       <button className={btn} onClick={() => confirm(`Excluir "${p.name}"?`) && st.deleteProject()}>Excluir</button>
       <div className="mx-1 h-5 w-px bg-line" />
       <button className={btn} disabled={!canUndo} onClick={() => st.undo()}>↶ Desfazer</button>
+      <button className={btn} onClick={() => st.arrange()}>Organizar</button>
+      <span className={'text-xs ' + (saveState === 'error' ? 'text-red-400' : 'text-slate-500')}>
+        {{ idle: '', saving: 'Salvando…', saved: 'Salvo', error: 'Erro ao salvar' }[saveState]}
+      </span>
       <div className="ml-auto flex gap-2">
         <button className={btn} onClick={() => file.current?.click()}>Importar JSON</button>
         <button className={btn} onClick={exportJson}>Exportar JSON</button>
         <button className={btn + ' !border-accent !bg-accent/20'} onClick={exportPng}>Exportar PNG</button>
+        <button className={btn} onClick={() => st.logout()}>Sair</button>
         <input ref={file} type="file" accept="application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importJson(f); e.target.value = '' }} />
       </div>
     </header>

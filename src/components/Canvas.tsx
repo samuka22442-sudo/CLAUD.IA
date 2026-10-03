@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DeviceIcon } from '../devices'
-import { PORT, cablePath, deviceSize, portOffset, portPos } from '../geometry'
+import { PORT, cableGeom, cablePath, deviceSize, portOffset, portPos } from '../geometry'
 import { portUsed, useActive, useStore } from '../store'
 import type { DeviceType, PortRef } from '../types'
 
@@ -151,6 +151,7 @@ export default function Canvas() {
   const onPointerUp = (e: React.PointerEvent) => {
     const d = drag.current
     drag.current = null
+    if (d?.t === 'move' && d.kind === 'device') useStore.getState().settleDevice(d.id)
     if (d?.t === 'link') {
       const el = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-port]')
       if (el) addCable(d.from, { deviceId: el.dataset.device!, port: Number(el.dataset.port) })
@@ -194,17 +195,23 @@ export default function Canvas() {
             if (!a || !b) return null
             const pa = portPos(a, c.from.port)
             const pb = portPos(b, c.to.port)
-            const d = cablePath(pa, pb)
+            const { d, mid } = cableGeom(pa, pb)
             const on = sel?.kind === 'cable' && sel.id === c.id
+            const lw = c.label.length * 6.6 + 18
             return (
               <g key={c.id} data-cable={c.id} className="cursor-pointer">
-                <path d={d} fill="none" stroke="transparent" strokeWidth={16} pointerEvents="stroke" />
-                {on && <path d={d} fill="none" stroke="#fff" strokeOpacity={0.35} strokeWidth={c.width + 6} strokeLinecap="round" />}
+                <path d={d} fill="none" stroke="transparent" strokeWidth={18} pointerEvents="stroke" />
+                <path d={d} fill="none" stroke={c.color} strokeOpacity={on ? 0.35 : 0.16} strokeWidth={c.width + 8} strokeLinecap="round" />
                 <path d={d} fill="none" stroke={c.color} strokeWidth={c.width} strokeDasharray={c.dash} strokeLinecap="round" />
+                <path d={d} fill="none" stroke="#fff" strokeOpacity={0.28} strokeWidth={Math.max(0.8, c.width / 3)} strokeDasharray={c.dash} strokeLinecap="round" />
+                {[pa, pb].map((p, i) => (
+                  <circle key={i} cx={p.x} cy={p.y} r={c.width + 1.5} fill={c.color} stroke="#0a1020" strokeWidth={2} />
+                ))}
                 {c.label && (
-                  <text x={(pa.x + pb.x) / 2} y={(pa.y + pb.y) / 2 + 16} textAnchor="middle" fontSize={12} fill="#cfe0ff" stroke="#0a1020" strokeWidth={4} paintOrder="stroke">
-                    {c.label}
-                  </text>
+                  <g transform={`translate(${mid.x} ${mid.y})`}>
+                    <rect x={-lw / 2} y={-11} width={lw} height={22} rx={11} fill="#0a1020" stroke={c.color} strokeOpacity={0.8} />
+                    <text y={4} textAnchor="middle" fontSize={11.5} fontWeight={500} fill="#e6efff">{c.label}</text>
+                  </g>
                 )}
               </g>
             )

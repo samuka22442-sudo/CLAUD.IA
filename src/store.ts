@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { api, ApiError } from './api'
+import { arrange, freeSpot } from './geometry'
 import { CABLE_KINDS, DEVICE_TYPES } from './devices'
 import type { Cable, CableKind, Device, DeviceType, Note, PortRef, Project, Selection } from './types'
 
@@ -10,11 +11,22 @@ const blank = (name: string): Project => ({ id: uid(), name, devices: [], cables
 const samePort = (a: PortRef, b: PortRef) => a.deviceId === b.deviceId && a.port === b.port
 export const portUsed = (p: Project, ref: PortRef) => p.cables.some((c) => samePort(c.from, ref) || samePort(c.to, ref))
 
+type Phase = 'checking' | 'login' | 'ready'
+type SaveState = 'idle' | 'saving' | 'saved' | 'error'
+
 interface State {
+  phase: Phase
+  saveState: SaveState
   projects: Project[]
   activeId: string
   selection: Selection
   past: Project[]
+
+  boot: () => Promise<void>
+  load: () => Promise<void>
+  logout: () => Promise<void>
+  arrange: () => void
+  settleDevice: (id: string) => void
 
   select: (s: Selection) => void
   checkpoint: () => void
@@ -36,11 +48,7 @@ interface State {
   removeSelected: () => void
 }
 
-const first = blank('Meu diagrama')
-
-export const useStore = create<State>()(
-  persist(
-    (set, get) => {
+export const useStore = create<State>()((set, get) => {
       const mutate = (fn: (p: Project) => Project, record = true) =>
         set((s) => {
           const cur = s.projects.find((p) => p.id === s.activeId)!
@@ -54,10 +62,57 @@ export const useStore = create<State>()(
       const add = (p: Project) => set((s) => ({ projects: [...s.projects, p], activeId: p.id, selection: null, past: [] }))
 
       return {
-        projects: [first],
-        activeId: first.id,
+        phase: 'checking',
+        saveState: 'idle',
+        projects: [],
+        activeId: '',
         selection: null,
         past: [],
+
+        boot: async () => {
+          try {
+            await api.me()
+            await get().load()
+          } catch {
+            set({ phase: 'login' })
+          }
+        },
+        load: async () => {
+          let projects = await api.list()
+          // migra projetos que existiam só neste navegador (versão anterior)
+          try {
+            const old = JSON.parse(localStorage.getItem('netdiagram.v1') ?? 'null')?.state?.projects as Project[] | undefined
+            if (old?.length) {
+              await Promise.all(old.map((p) => api.save(p)))
+              projects = [...projects, ...old]
+            }
+            localStorage.removeItem('netdiagram.v1')
+          } catch { /* sem localStorage */ }
+          if (!projects.length) {
+            const p = blank('Meu diagrama')
+            await api.save(p)
+            projects = [p]
+          }
+          set({ projects, activeId: projects[0].id, selection: null, past: [], phase: 'ready', saveState: 'idle' })
+        },
+        logout: async () => {
+          await api.logout().catch(() => {})
+          set({ phase: 'login', projects: [], activeId: '', selection: null, past: [] })
+        },
+        arrange: () => {
+          mutate((p) => {
+            const pos = arrange(p.devices)
+            return { ...p, devices: p.devices.map((d) => ({ ...d, ...(pos[d.id] ?? {}) })) }
+          })
+          window.dispatchEvent(new Event('netdiagram:fit'))
+        },
+        settleDevice: (id) => {
+          const p = get().projects.find((x) => x.id === get().activeId)!
+          const d = p.devices.find((x) => x.id === id)
+          if (!d) return
+          const spot = freeSpot(p.devices.filter((x) => x.id !== id), d.x, d.y, d.ports)
+          if (spot.x !== d.x || spot.y !== d.y) mutate((q) => ({ ...q, devices: q.devices.map((x) => (x.id === id ? { ...x, ...spot } : x)) }), false)
+        },
 
         select: (selection) => set({ selection }),
         checkpoint: () =>
@@ -95,7 +150,9 @@ export const useStore = create<State>()(
 
         addDevice: (type, x, y) => {
           const def = DEVICE_TYPES[type]
-          const d: Device = { id: uid(), type, name: def.label, ports: def.ports, x, y, color: '#3b82f6' }
+          const cur = get().projects.find((p) => p.id === get().activeId)!
+          const spot = freeSpot(cur.devices, x, y, def.ports)
+          const d: Device = { id: uid(), type, name: def.label, ports: def.ports, ...spot, color: '#3b82f6' }
           mutate((p) => ({ ...p, devices: [...p.devices, d] }))
           set({ selection: { kind: 'device', id: d.id } })
         },
@@ -141,13 +198,41 @@ export const useStore = create<State>()(
           set({ selection: null })
         },
       }
-    },
-    {
-      name: 'netdiagram.v1',
-      partialize: (s) => ({ projects: s.projects, activeId: s.activeId }),
-    },
-  ),
-)
+})
+
+// --- sincronização com o servidor ------------------------------------------
+const timers = new Map<string, ReturnType<typeof setTimeout>>()
+
+function flush(id: string) {
+  const p = useStore.getState().projects.find((x) => x.id === id)
+  if (!p) return
+  api
+    .save(p)
+    .then(() => {
+      if (timers.size === 0) useStore.setState({ saveState: 'saved' })
+    })
+    .catch((e) => {
+      if (e instanceof ApiError && e.status === 401) useStore.setState({ phase: 'login' })
+      else useStore.setState({ saveState: 'error' })
+    })
+}
+
+useStore.subscribe((s, prev) => {
+  if (s.phase !== 'ready' || prev.phase !== 'ready' || s.projects === prev.projects) return
+  for (const p of s.projects) {
+    if (prev.projects.find((q) => q.id === p.id) === p) continue
+    clearTimeout(timers.get(p.id))
+    useStore.setState({ saveState: 'saving' })
+    timers.set(p.id, setTimeout(() => { timers.delete(p.id); flush(p.id) }, 600))
+  }
+  for (const q of prev.projects) {
+    if (!s.projects.some((p) => p.id === q.id)) {
+      clearTimeout(timers.get(q.id))
+      timers.delete(q.id)
+      api.remove(q.id).catch(() => useStore.setState({ saveState: 'error' }))
+    }
+  }
+})
 
 export const useActive = () => useStore((s) => s.projects.find((p) => p.id === s.activeId) ?? s.projects[0])
 export type { CableKind }
